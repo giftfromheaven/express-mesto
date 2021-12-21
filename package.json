@@ -1,0 +1,38 @@
+{
+  "name": "express-mesto",
+  "version": "1.0.0",
+  "description": "mesto backend",
+  "main": "app.js",
+  "scripts": {
+    "lint": "npx eslint .",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/giftfromheaven/express-mesto.git"
+  },
+  "author": "Ilya Dykin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/giftfromheaven/express-mesto/issues"
+  },
+  "homepage": "https://github.com/giftfromheaven/express-mesto#readme",
+  "devDependencies": {
+    "eslint": "^8.4.0",
+    "nodemon": "^2.0.15",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.3"
+  },
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.19.0",
+    "celebrate": "^15.0.0",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.17.1",
+    "joi": "^17.5.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.0.14",
+    "validator": "^13.7.0"
+  }
+}
