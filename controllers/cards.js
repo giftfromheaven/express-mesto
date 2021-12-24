@@ -1,6 +1,6 @@
 const Card = require("../models/user");
 
-const getCards = (res) => {
+const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.status(200).send({ cards }))
     .catch(() => res.status(500).send({ message: "На сервере произошла ошибка при получении карточек" }));
