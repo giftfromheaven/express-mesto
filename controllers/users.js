@@ -1,3 +1,5 @@
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 
 const getUsers = (req, res) => {
@@ -7,10 +9,18 @@ const getUsers = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-
-  User.create({ name, about, avatar })
-    .then((user) => res.status(201).send({ data: user }))
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    }))
+    .then((user) => {
+      res.status(200).send({
+        id: user._id, email: user.email, name: user.name, abote: user.aboute, avatar: user.avatar,
+      });
+    })
     .catch((err) => {
       if (err.name === "ValidationError") {
         res.status(400).send({ message: "Переданы некорректные данные при создании пользователя" });
@@ -88,10 +98,25 @@ const updateAvatar = (req, res) => {
     });
 };
 
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      const payload = { _id: user._id };
+      res.send({
+        token: jwt.sign(payload, "therandom1", { expiresIn: "7d" }),
+      });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
 module.exports = {
   getUsers,
   getCurrentUser,
   createUser,
   updateUser,
   updateAvatar,
+  login,
 };
