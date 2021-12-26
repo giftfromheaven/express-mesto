@@ -1,7 +1,7 @@
 // models/user.js
 
 const { Schema, model } = require("mongoose");
-const { default: isEmail } = require("validator/lib/isEmail");
+const { isEmail, isURL } = require("validator");
 const bcrypt = require("bcrypt");
 // Опишем схему:
 const userSchema = new Schema({
@@ -20,6 +20,10 @@ const userSchema = new Schema({
   avatar: {
     type: String,
     required: true,
+    validate: {
+      validator: (url) => isURL(url),
+      message: "Ссылка не подходит",
+    },
   },
   email: {
     type: String,
@@ -34,6 +38,7 @@ const userSchema = new Schema({
     type: String,
     required: true,
     minlength: 8,
+    select: false,
   },
 });
 

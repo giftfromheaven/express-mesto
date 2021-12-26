@@ -1,9 +1,13 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const { errors } = require("celebrate");
 const bodyParser = require("body-parser");
+const errorHandler = require("./middlewares/errors");
 const usersRouter = require("./routes/users");
 const cardsRouter = require("./routes/cards");
-const { createUser, login } = require("./controllers/users");
+const auth = require("./middlewares/auth");
+
+const Error404 = 404;
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -11,23 +15,18 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "61c0caee9cad5f835345db86",
-  };
-
-  next();
-});
+app.use(auth);
 
 app.use("/", usersRouter);
 app.use("/", cardsRouter);
 
-app.post("/signin", login);
-app.post("/signup", createUser);
-
 app.use("*", (req, res) => {
-  res.status(404).send({ message: "Несуществующий адрес" });
+  res.status(Error404).send({ message: "Несуществующий адрес" });
 });
+
+app.use(errors());
+
+app.use(errorHandler);
 
 async function start() {
   try {

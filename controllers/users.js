@@ -2,6 +2,12 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 
+const Error400 = 400;
+const Error404 = 404;
+const Error409 = 409;
+const Ok200 = 200;
+const Create201 = 201;
+
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send({ data: users }))
@@ -104,10 +110,26 @@ const login = (req, res, next) => {
     .then((user) => {
       const payload = { _id: user._id };
       res.send({
-        token: jwt.sign(payload, "therandom1", { expiresIn: "7d" }),
+        token: jwt.sign(payload, "randomdata", { expiresIn: "7d" }),
       });
     })
     .catch((err) => {
+      next(err);
+    });
+};
+
+const getUserMe = (req, res, next) => {
+  User.findById(req.user._id)
+    .orFail(new Error("NotValidId"))
+    .then((user) => {
+      res.send(user);
+    })
+    .catch((err) => {
+      if (err.message === "NotValidId") {
+        res.status(404).send({ message: "404 — Пользователь по указанному _id не найден." });
+      } else if (err.name === "CastError") {
+        res.status(400).send({ message: "400 — Переданы некорректные данные при обновлении аватара пользователя" });
+      }
       next(err);
     });
 };
@@ -119,4 +141,5 @@ module.exports = {
   updateUser,
   updateAvatar,
   login,
+  getUserMe,
 };

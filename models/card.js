@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 const mongoose = require("mongoose");
-// Опишем схему:
+const validator = require("validator");
+
 const cardSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -11,6 +12,10 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator: (url) => validator.isURL(url),
+      message: "Ссылка не подходит",
+    },
   },
   owner: {
     type: String,
