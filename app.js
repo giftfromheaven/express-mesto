@@ -35,11 +35,11 @@ app.post("/signup", celebrate({
 
 app.use(auth);
 
-app.use("/", usersRouter);
-app.use("/", cardsRouter);
+app.use("/", auth, usersRouter);
+app.use("/", auth, cardsRouter);
 
 app.use("*", () => {
-  throw new NotFoundError("Несуществующий адрес.");
+  throw new NotFoundError("Несуществующий адрес");
 });
 
 app.use(errors());
