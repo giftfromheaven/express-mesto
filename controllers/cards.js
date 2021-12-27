@@ -32,16 +32,15 @@ const deleteCard = (req, res, next) => {
   Card.findById(req.params.id)
     .orFail(() => new NotFoundError("Передан несуществующий id карточки для её удаления"))
     .then((card) => {
-      if (card.owner.toString() !== userId) {
-        card.remove()
+      if (card.owner.toString() === userId) {
+        return card.remove()
           .then(res.status(Ok200).send({ message: "Карточка удалена!" }));
       }
+      return next(new ForbiddenError("У вас нет прав для удаления карточки"));
     })
     .catch((err) => {
       if (err.name === "CastError") {
         next(new BadRequestError("Переданы некорректные данные при удалении карточки"));
-      } else {
-        next(new ForbiddenError("У вас нет прав для удаления карточки"));
       }
       next(err);
     });
