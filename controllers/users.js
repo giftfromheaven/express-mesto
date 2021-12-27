@@ -5,9 +5,9 @@ const User = require("../models/user");
 const NotFoundError = require("../errors/not-found-error");
 const BadRequestError = require("../errors/bad-request-error");
 const ConflictError = require("../errors/conflict-error");
+const NotAuthError = require("../errors/not-auth-error");
 
-const Ok200 = 200;
-const Ok201 = 201;
+const { Ok200, Ok201 } = require("../utils/const");
 
 const getUsers = (req, res, next) => {
   User.find({})
@@ -33,7 +33,7 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === "ValidationError") {
         next(new BadRequestError("Переданы некорректные данные при создании пользователя"));
-      } else if (err.name === "MongoError" && err.code === 11000) {
+      } else if (err.code === 11000) {
         next(new ConflictError("Пользователь с таким email уже существует"));
       } next(err);
     });
@@ -65,14 +65,12 @@ const updateUser = (req, res, next) => {
       runValidators: true,
     },
   )
-    .orFail(new Error("NotValidId"))
+    .orFail(() => new NotFoundError("Пользователь с указанным id не существует"))
     .then((user) => {
       res.status(Ok201).send(user);
     })
     .catch((err) => {
-      if (err.message === "NotValidId") {
-        next(new NotFoundError("Пользователь по указанному id не найден при обновлении данных"));
-      } else if ((err.name === "ValidationError") || (err.name === "CastError")) {
+      if ((err.name === "ValidationError") || (err.name === "CastError")) {
         next(new BadRequestError("Переданы некорректные данные при обновлении данных пользователя"));
       } next(err);
     });
@@ -88,14 +86,12 @@ const updateAvatar = (req, res, next) => {
       runValidators: true,
     },
   )
-    .orFail(new Error("NotValidId"))
+    .orFail(() => new NotFoundError("Пользователь с указанным id не существует"))
     .then((user) => {
       res.status(Ok201).send(user);
     })
     .catch((err) => {
-      if (err.message === "NotValidId") {
-        next(new NotFoundError("Пользователь по указанному id не найден при обновлении аватара"));
-      } else if ((err.name === "ValidationError") || (err.name === "CastError")) {
+      if ((err.name === "ValidationError") || (err.name === "CastError")) {
         next(new BadRequestError("Переданы некорректные данные при обновлении аватара"));
       }
       next(err);
@@ -110,7 +106,7 @@ const login = (req, res, next) => {
       bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            next(new BadRequestError("Указан некорректный Email или пароль"));
+            next(new NotAuthError("Указан некорректный Email или пароль"));
           } else {
             const payload = { _id: user._id };
             res.send({
@@ -121,7 +117,7 @@ const login = (req, res, next) => {
     })
     .catch((err) => {
       if (err.message === "IncorrectEmail") {
-        next(new BadRequestError("Указан некорректный Email или пароль"));
+        next(new NotAuthError("Указан некорректный Email или пароль"));
       } else {
         next(err);
       }

@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 const mongoose = require("mongoose");
 const validator = require("validator");
 
@@ -18,15 +17,15 @@ const cardSchema = new mongoose.Schema({
     },
   },
   owner: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "user",
     required: true,
   },
-  likes: {
-    type: Types.ObjectId,
+  likes: [{
+    type: mongoose.Schema.Types.ObjectId,
     ref: "user",
     default: [],
-  },
+  }],
   createdAt: {
     type: Date,
     default: Date.now,

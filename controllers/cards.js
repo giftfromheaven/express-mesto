@@ -1,11 +1,10 @@
-const Card = require("../models/user");
+const Card = require("../models/card");
 
 const NotFoundError = require("../errors/not-found-error");
 const BadRequestError = require("../errors/bad-request-error");
 const ForbiddenError = require("../errors/forbidden-error");
 
-const Ok200 = 200;
-const Ok201 = 201;
+const { Ok200, Ok201 } = require("../utils/const");
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -30,10 +29,10 @@ const addCard = (req, res, next) => {
 
 const deleteCard = (req, res, next) => {
   const userId = req.user._id;
-  Card.findByIdAndRemove(req.params.id)
-    .orFail(new Error("NotValidId"))
+  Card.findById(req.params.id)
+    .orFail(() => new NotFoundError("Передан несуществующий id карточки для её удаления"))
     .then((card) => {
-      if (Card.owner.toString() !== userId) {
+      if (card.owner.toString() !== userId) {
         card.remove();
         res.status(Ok200).send({ message: "Карточка удалена!" });
       } else {
@@ -41,9 +40,7 @@ const deleteCard = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err.message === "NotValidId") {
-        next(new NotFoundError("Передан несуществующий id карточки для её удаления"));
-      } else if (err.name === "CastError") {
+      if (err.name === "CastError") {
         next(new BadRequestError("Переданы некорректные данные при удалении карточки"));
       }
       next(err);
@@ -56,14 +53,12 @@ const setLike = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error("NotValidId"))
+    .orFail(() => new NotFoundError("Передан несуществующий id карточки для добавления лайка"))
     .then((card) => {
       res.status(Ok200).send({ data: card });
     })
     .catch((err) => {
-      if (err.message === "NotValidId") {
-        next(new NotFoundError("Передан несуществующий id карточки для добавления лайка"));
-      } else if (err.name === "CastError") {
+      if (err.name === "CastError") {
         next(new BadRequestError("Переданы некорректные данные при добавлении лайка"));
       }
       next(err);
@@ -76,14 +71,12 @@ const deleteLike = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error("NotValidId"))
+    .orFail(() => new NotFoundError("Передан несуществующий id карточки для снятия лайка"))
     .then((card) => {
       res.status(Ok200).send({ data: card });
     })
     .catch((err) => {
-      if (err.message === "NotValidId") {
-        next(new NotFoundError("Передан несуществующий id карточки для снятия лайка"));
-      } else if (err.name === "CastError") {
+      if (err.name === "CastError") {
         next(new BadRequestError("Переданы некорректные данные для снятия лайка"));
       }
       next(err);
