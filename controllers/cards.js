@@ -21,7 +21,7 @@ const addCard = (req, res, next) => {
     .then((card) => res.status(Ok201).send({ data: card }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        throw new BadRequestError("Переданы некорректные данные при создании карточки");
+        next(new BadRequestError("Переданы некорректные данные при создании карточки"));
       }
       next(err);
     });
@@ -33,15 +33,15 @@ const deleteCard = (req, res, next) => {
     .orFail(() => new NotFoundError("Передан несуществующий id карточки для её удаления"))
     .then((card) => {
       if (card.owner.toString() !== userId) {
-        card.remove();
-        res.status(Ok200).send({ message: "Карточка удалена!" });
-      } else {
-        throw new ForbiddenError("У вас нет прав для удаления карточки");
+        card.remove()
+          .then(res.status(Ok200).send({ message: "Карточка удалена!" }));
       }
     })
     .catch((err) => {
       if (err.name === "CastError") {
         next(new BadRequestError("Переданы некорректные данные при удалении карточки"));
+      } else {
+        next(new ForbiddenError("У вас нет прав для удаления карточки"));
       }
       next(err);
     });
