@@ -8,6 +8,7 @@ const usersRouter = require("./routes/users");
 const cardsRouter = require("./routes/cards");
 const auth = require("./middlewares/auth");
 const { createUser, login } = require("./controllers/users");
+const { requestLogger, errorLogger } = require("./middlewares/logger");
 
 const NotFoundError = require("./errors/not-found-error");
 
@@ -17,21 +18,33 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post("/signin", celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(5),
+app.use(requestLogger);
+
+app.post(
+  "/signin",
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required().min(5),
+    }),
   }),
-}), login);
-app.post("/signup", celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(/^https?:\/\/(www.)?[a-zA-Z0-9-.]+\.[a-zA-Z]{2,}([a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]+)*#*$/),
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(5),
+  login,
+);
+app.post(
+  "/signup",
+  celebrate({
+    body: Joi.object().keys({
+      name: Joi.string().min(2).max(30),
+      about: Joi.string().min(2).max(30),
+      avatar: Joi.string().pattern(
+        /^https?:\/\/(www.)?[a-zA-Z0-9-.]+\.[a-zA-Z]{2,}([a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]+)*#*$/,
+      ),
+      email: Joi.string().required().email(),
+      password: Joi.string().required().min(5),
+    }),
   }),
-}), createUser);
+  createUser,
+);
 
 app.use(auth);
 
@@ -41,6 +54,7 @@ app.use("/", auth, cardsRouter);
 app.use("*", () => {
   throw new NotFoundError("Несуществующий адрес");
 });
+app.use(errorLogger);
 
 app.use(errors());
 
