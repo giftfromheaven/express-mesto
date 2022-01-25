@@ -21,8 +21,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(requestLogger);
 
 const allowedCors = [
-  "http://praktikumdomainfrontend.nomoredomains.rocks",
-  "https://praktikumdomainfrontend.nomoredomains.rocks",
+  "http://giftfromheaven.nomoredomains.rocks",
+  "https://giftfromheaven.nomoredomains.rocks",
   "localhost:3000",
 ];
 
