@@ -8,8 +8,27 @@
 `/controllers` — папка с файлами контроллеров пользователя и карточки   
 `/models` — папка с файлами описания схем пользователя и карточки  
 
-## Запуск проекта
+## Используемые технологии 
 
-`npm run start` — запускает сервер   
-`npm run dev` — запускает сервер с hot-reload
+* Expressjs
+* nodemon
+* MongoDB
+* mongoose
+* celebrate
+* bcryptjs
+* jsonwebtoken
+* validator
+* eslint
+
+## Инструкция по установке:
+
+Клонировать репозиторий:
+
+* `git clone https://github.com/giftfromheaven/express-mesto.git`
+
+Установить зависимости и запустить приложение:
+
+* `npm install` - устанавливает зависимости; 
+* `npm run start` - запускает сервер;
+* `npm run dev` - запускает сервер в режиме разработки;
 
