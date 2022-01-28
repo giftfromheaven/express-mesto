@@ -20,6 +20,10 @@
 * validator
 * eslint
 
+## Статус
+
+- Проект завершён и является частью приложения [Mesto](https://github.com/giftfromheaven/react-mesto-api-full)
+
 ## Инструкция по установке:
 
 Клонировать репозиторий:
